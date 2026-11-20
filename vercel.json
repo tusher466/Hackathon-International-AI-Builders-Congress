@@ -1,0 +1,56 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "framework": "vite",
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "installCommand": "pip install -r requirements.txt && cd frontend && npm install",
+  "functions": {
+    "api/main.py": {
+      "runtime": "python3.11",
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/v1/(.*)",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/ws/(.*)",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/docs",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/redoc",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "cleanUrls": true
+}
