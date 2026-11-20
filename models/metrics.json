@@ -1,0 +1,14 @@
+{
+  "secom_anomaly_train_size": 121,
+  "turbofan_anomaly_train_size": 355,
+  "bosch_anomaly_train_size": 141,
+  "rul_mae": 4.345211267605634,
+  "rul_train_size": 284,
+  "rul_test_size": 71,
+  "defect_precision": 0.0,
+  "defect_recall": 0.0,
+  "defect_f1": 0.0,
+  "defect_mcc": 0.0,
+  "defect_train_size": 112,
+  "defect_test_size": 29
+}

@@ -1,0 +1,50 @@
+# Backend Dockerfile - also serves frontend if built
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# System deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy backend code
+COPY agents/ ./agents/
+COPY api/ ./api/
+COPY config/ ./config/
+COPY core/ ./core/
+COPY data/ ./data/
+COPY detection/ ./detection/
+COPY ingestion/ ./ingestion/
+COPY knowledge/ ./knowledge/
+COPY actions/ ./actions/
+COPY models/ ./models/
+COPY storage/ ./storage/
+COPY scripts/ ./scripts/
+COPY tests/ ./tests/ 2>/dev/null || true
+
+# Copy frontend dist if exists (multi-stage would be better, but we try to copy if present)
+# The frontend builder should have run `npm run build` generating frontend/dist
+COPY frontend/dist ./frontend/dist
+COPY Fontend/dist ./Fontend/dist
+
+# Ensure data dirs
+RUN mkdir -p /app/data/chroma /app/data/raw /app/data/processed /app/models
+
+ENV ENV=production
+ENV PYTHONPATH=/app
+ENV STREAM_BACKEND=memory
+ENV LLM_MODE=mock
+ENV AUTO_START_STREAM=true
+
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD python -c "import requests; requests.get('http://localhost:8000/api/v1/health', timeout=5)" || exit 1
+
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Dark theme default */
+  --bg: #14171A;
+  --surface: #1C2024;
+  --surface-hover: #242A30;
+  --border: #2A2F35;
+  --border-hover: #3A414B;
+  --text-primary: #ECEEF0;
+  --text-muted: #8E979F;
+  --accent: #FF6B1A;
+  --accent-hover: #FF7F3D;
+  --accent-text: #FFFFFF;
+  --healthy: #22C55E;
+  --warning: #FACC15;
+  --critical: #EF4444;
+  --offline: #64748B;
+  --steel: #8E979F;
+  --steel-muted: #5A6570;
+
+  --radius-card: 8px;
+}
+
+[data-theme="light"] {
+  --bg: #F4F5F6;
+  --surface: #FFFFFF;
+  --surface-hover: #EFF1F3;
+  --border: #D8DBDF;
+  --border-hover: #B8BDC4;
+  --text-primary: #14171A;
+  --text-muted: #64707A;
+  --accent: #D9500B;
+  --accent-hover: #C2460A;
+  --accent-text: #FFFFFF;
+  --healthy: #15803D;
+  --warning: #A16207;
+  --critical: #B91C1C;
+  --offline: #64748B;
+  --steel: #5A6672;
+  --steel-muted: #8E979F;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-feature-settings: 'tnum' 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  margin: 0;
+  min-height: 100vh;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Floor display mode */
+.floor-mode {
+  font-size: 115%;
+}
+.floor-mode .big-number {
+  font-size: 1.4em;
+}
+.floor-mode .card {
+  padding: 1.5rem;
+}
+
+/* Focus rings */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
+
+/* Live dot blink */
+@keyframes slow-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.live-dot {
+  animation: slow-blink 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-dot {
+    animation: none;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Card base */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+/* Utility for tabular numbers */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Skeleton */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Tooltip animation */
+.tooltip-enter {
+  animation: tooltipIn 120ms ease-out;
+}
+@keyframes tooltipIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

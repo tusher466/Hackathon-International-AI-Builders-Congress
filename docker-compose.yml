@@ -1,0 +1,78 @@
+version: '3.8'
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    restart: unless-stopped
+    networks:
+      - factory-net
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=production
+      - STREAM_BACKEND=memory
+      - SIM_RATE_HZ=2.0
+      - AUTO_START_STREAM=true
+      - MQTT_HOST=mosquitto
+      - MQTT_PORT=1883
+      - LLM_MODE=mock
+      - DATABASE_URL=sqlite:///./data/factory_brain.db
+      - CHROMA_PERSIST_PATH=./data/chroma
+      - CORS_ORIGINS=*
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    depends_on:
+      - mosquitto
+    restart: unless-stopped
+    networks:
+      - factory-net
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+      - VITE_WS_URL=ws://localhost:8000/ws/live
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - factory-net
+    # Optional: If you use merged deployment, frontend service is not needed
+    # because backend serves frontend at :8000. This service is useful for
+    # separate frontend deployment or nginx serving
+    profiles:
+      - separate-frontend
+
+networks:
+  factory-net:
+    driver: bridge
+
+# Usage:
+# - Merged single-port deployment (recommended):
+#   docker-compose up backend mosquitto
+#   Then visit http://localhost:8000 (frontend served by backend)
+#
+# - Separate frontend + backend:
+#   docker-compose --profile separate-frontend up
+#   Frontend at http://localhost:3000, backend at http://localhost:8000
+#
+# - Without Docker (fastest):
+#   make full-install && make train && make ingest-docs && make full-run
+#   Or: cd frontend && npm run dev (frontend on :3000) + python backend on :8000 with proxy
